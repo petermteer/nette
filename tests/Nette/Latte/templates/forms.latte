@@ -18,6 +18,6 @@
 
 {form myForm}
 	{foreach $form[sex]->items as $key => $label}
-		{input sex:$key} {$label}
+		{input sex:$key:$label} {$label}
 	{/foreach}
 {/form myForm}

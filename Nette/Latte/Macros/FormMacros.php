@@ -121,7 +121,8 @@ class FormMacros extends MacroSet
 	 */
 	public function macroInput(MacroNode $node, PhpWriter $writer)
 	{
-		list($name) = $pair = explode(':', $node->tokenizer->fetchWord(), 2);
+		$parts = explode(':', $node->tokenizer->fetchWord());
+		$name = array_shift($parts);
 		if ($name === '') {
 			throw new CompileException("Missing name in {{$node->name}}.");
 		}
@@ -129,7 +130,7 @@ class FormMacros extends MacroSet
 			($name[0] === '$' ? '$_input = is_object(%0.word) ? %0.word : $_form[%0.word]; echo $_input' : 'echo $_form[%0.word]')
 			. '->getControl(%1.raw)->addAttributes(%node.array)',
 			$name,
-			isset($pair[1]) ? $writer->formatWord($pair[1]) : ''
+			implode(', ', array_map(array($writer, 'formatWord'), $parts))
 		);
 	}
 
@@ -140,7 +141,8 @@ class FormMacros extends MacroSet
 	 */
 	public function macroAttrInput(MacroNode $node, PhpWriter $writer)
 	{
-		list($name) = $pair = explode(':', $node->tokenizer->fetchWord(), 2);
+		$parts = explode(':', $node->tokenizer->fetchWord());
+		$name = array_shift($parts);
 		if ($name === '') {
 			throw new CompileException("Missing name in n:input.");
 		}
@@ -149,7 +151,7 @@ class FormMacros extends MacroSet
 			. (strcasecmp($node->htmlNode->name, 'label') ? '->getControl(%1.raw)' : '->getLabel(%1.raw)')
 			. ($node->htmlNode->attrs ? '->addAttributes(%2.var)' : '') . '->attributes()',
 			$name,
-			isset($pair[1]) ? $writer->formatWord($pair[1]) : '',
+			implode(', ', array_map(array($writer, 'formatWord'), $parts)),
 			array_fill_keys(array_keys($node->htmlNode->attrs), NULL)
 		);
 	}
