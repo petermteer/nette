@@ -52,9 +52,20 @@ class Checkbox extends BaseControl
 	 * Generates control's HTML element.
 	 * @return Nette\Utils\Html
 	 */
-	public function getControl()
+	public function getControl($caption = NULL)
 	{
-		return parent::getControl()->checked($this->value);
+		return parent::getLabel($caption)->insert(0, parent::getControl()->checked($this->value));
+	}
+
+
+
+	/**
+	 * Bypasses label generation.
+	 * @return void
+	 */
+	public function getLabel($caption = NULL)
+	{
+		return NULL;
 	}
 
 }
