@@ -147,32 +147,26 @@ class RadioList extends BaseControl
 	 * @param  mixed
 	 * @return Nette\Utils\Html
 	 */
-	public function getControl($key = NULL)
+	public function getControl($key = NULL, $caption = NULL)
 	{
-		$value = $this->value === NULL ? NULL : (string) $this->getValue();
+		$selectedValue = $this->value === NULL ? NULL : (string) $this->getValue();
 		$control = parent::getControl();
-
-		if ($key !== NULL) {
-			$control->id .= '-' . $key;
-			$control->checked = (string) $key === $value;
-			$control->value = $key;
-			return $control;
-		}
-
-		$id = $control->id;
 		$container = clone $this->container;
 		$separator = (string) $this->separator;
-		$label = $this->getLabel();
+		$items = $key === NULL ? $this->items : array($key => $this->items[$key]);
 
-		foreach ($this->items as $k => $val) {
-			$control->id = $label->for = $id . '-' . $k;
-			$control->checked = (string) $k === $value;
+		foreach ($items as $k => $v) {
+			$control->checked = (string) $k === $selectedValue;
 			$control->value = $k;
-			$label->setText($this->translate($val));
+			$label = parent::getLabel($caption === NULL ? $v : $caption);
+			$label->insert(0, $control);
+			$control->id = $label->for .= '-' . $k;
+			if ($key !== NULL) {
+				return $label;
+			}
 
-			$container->add((string) $control . (string) $label . $separator);
+			$container->add((string) $label . $separator);
 			$control->data('nette-rules', NULL);
-			// TODO: separator after last item?
 		}
 
 		return $container;
@@ -186,16 +180,9 @@ class RadioList extends BaseControl
 	 * @param  mixed
 	 * @return void
 	 */
-	public function getLabel($caption = NULL, $key = NULL)
+	public function getLabel($caption = NULL)
 	{
-		if ($key === NULL) {
-			$label = parent::getLabel($caption);
-			$label->for = NULL;
-		} else {
-			$label = parent::getLabel($caption === NULL ? $this->items[$key] : $caption);
-			$label->for .= '-' . $key;
-		}
-		return $label;
+		return parent::getLabel($caption)->for(NULL);
 	}
 
 }

@@ -90,15 +90,14 @@ class FormMacros extends MacroSet
 	 */
 	public function macroLabel(MacroNode $node, PhpWriter $writer)
 	{
-		list($name) = $pair = explode(':', $node->tokenizer->fetchWord(), 2);
-		if ($name === '') {
+		$name = $node->tokenizer->fetchWord();
+		if ($name === FALSE) {
 			throw new CompileException("Missing name in {{$node->name}}.");
 		}
+		$node->tokenizer->reset();
 		return $writer->write(
-			($name[0] === '$' ? '$_input = is_object(%0.word) ? %0.word : $_form[%0.word]; if ($_label = $_input' : 'if ($_label = $_form[%0.word]')
-			. '->getLabel(%1.raw)) echo $_label->addAttributes(%node.array)',
-			$name,
-			isset($pair[1]) ? 'NULL, ' . $writer->formatWord($pair[1]) : ''
+			($name[0] === '$' ? '$_input = is_object(%node.word) ? %node.word : $_form[%node.word]; if ($_label = $_input->getLabel())' : 'if ($_label = $_form[%node.word]->getLabel())')
+			. ' echo $_label->addAttributes(%node.array)'
 		);
 	}
 
